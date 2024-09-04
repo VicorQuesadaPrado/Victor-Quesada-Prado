@@ -1,0 +1,392 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+const int MAX_MOVIES = 10;
+const int MAX_ROOMS = 5;
+const int MAX_SEATS = 10;
+const int MAX_SCHEDULES = 20;
+
+struct Movie {
+	string title;
+	int year;
+	int duration;
+	string country;
+	string review;
+};
+
+struct Room {
+	int number;
+	int seatCount;
+	double price;
+};
+
+struct Schedule {
+	string date;
+	string startTime;
+	string endTime;
+};
+
+struct Customer {
+	string id;
+	string creditCard;
+};
+
+// Global variables
+Movie movies[MAX_MOVIES];
+Room rooms[MAX_ROOMS];
+Schedule schedules[MAX_SCHEDULES];
+Customer customer;
+
+int movieCount = 0;
+int roomCount = 0;
+int scheduleCount = 0;
+
+bool seats[MAX_ROOMS][MAX_SEATS];  // Matrix to manage seat availability (true = reserved, false = available)
+
+// Function definitions
+
+// Display the main menu
+void showMenu() {
+	
+	cout << "\n--- Sistema de Venta de Tiquetes ---\n";
+	cout << "1. Acerca de\n";
+	cout << "2. Mantenimiento de Peliculas\n";
+	cout << "3. Mantenimiento de Salas\n";
+	cout << "4. Mantenimiento de Horarios\n";
+	cout << "5. Reservar Asiento\n";
+	cout << "6. Vender Tiquete\n";
+	cout << "7. Salir\n";
+}
+
+// Display information about the system
+void showAbout() {
+	cout << "\nSistema de Venta de Tiquetes para Cine 2.0\n";
+	cout << "Desarrollado por Victor Quesda Prado para NUEVA CINEMA SA, Pérez Zeledón\n";
+}
+
+// Exit the system
+void exitSystem() {
+	cout << "\nGracias por usar el sistema. ¡Hasta pronto!\n";
+}
+
+// Add a new movie to the system
+void addMovie() {
+	if(movieCount < MAX_MOVIES) {
+		cout << "\n--- Agregar Pelicula ---\n";
+		cout << "Ingrese el nombre de la pelicula: ";
+		cin.ignore();  // Clear the input buffer
+		getline(cin, movies[movieCount].title);
+		
+		cout << "Ingrese el año de la pelicula: ";
+		cin >> movies[movieCount].year;
+		
+		cout << "Ingrese la duracion de la pelicula (en minutos): ";
+		cin >> movies[movieCount].duration;
+		
+		cout << "Ingrese el pais de origen: ";
+		cin.ignore();
+		getline(cin, movies[movieCount].country);
+		
+		cout << "Ingrese una breve reseña: ";
+		getline(cin, movies[movieCount].review);
+		
+		movieCount++;
+		cout << "¡Pelicula agregada exitosamente!\n";
+	} else {
+		cout << "No se pueden agregar mas peliculas, se ha alcanzado el limite.\n";
+	}
+}
+
+// Display all movies
+void displayMovies() {
+	if(movieCount > 0) {
+		cout << "\n--- Lista de Peliculas ---\n";
+		for(int i = 0; i < movieCount; i++) {
+			cout << "Pelicula " << (i + 1) << ":\n";
+			cout << "Nombre: " << movies[i].title << endl;
+			cout << "Año: " << movies[i].year << endl;
+			cout << "Duracion: " << movies[i].duration << " minutos\n";
+			cout << "Pais: " << movies[i].country << endl;
+			cout << "Reseña: " << movies[i].review << endl;
+			cout << "--------------------------\n";
+		}
+	} else {
+		cout << "No hay películas registradas.\n";
+	}
+}
+
+// Movie management menu
+void manageMovies() {
+	int option;
+	
+	do {
+		cout << "\n--- Mantenimiento de Peliculas ---\n";
+		cout << "1. Agregar Pelicula\n";
+		cout << "2. Mostrar Peliculas\n";
+		cout << "3. Regresar al Menu Principal\n";
+		cout << "Seleccione una opcion: ";
+		cin >> option;
+		
+		switch(option) {
+		case 1: addMovie(); break;
+		case 2: displayMovies(); break;
+		case 3: return;
+		default: cout << "Opción no válida. Intente de nuevo." << endl;
+		}
+	} while(option != 3);
+}
+
+// Add a new room to the system
+void addRoom() {
+	if(roomCount < MAX_ROOMS) {
+		cout << "\n--- Agregar Sala ---\n";
+		cout << "Ingrese el número de la sala: ";
+		cin >> rooms[roomCount].number;
+		
+		cout << "Ingrese la cantidad de butacas: ";
+		cin >> rooms[roomCount].seatCount;
+		
+		cout << "Ingrese el precio por butaca: ";
+		cin >> rooms[roomCount].price;
+		
+		roomCount++;
+		cout << "¡Sala agregada exitosamente!\n";
+	} else {
+		cout << "No se pueden agregar más salas, se ha alcanzado el límite.\n";
+	}
+}
+
+// Display all rooms
+void displayRooms() {
+	if(roomCount > 0) {
+		cout << "\n--- Lista de Salas ---\n";
+		for(int i = 0; i < roomCount; i++) {
+			cout << "Sala " << (i + 1) << ":\n";
+			cout << "Número de Sala: " << rooms[i].number << endl;
+			cout << "Cantidad de Butacas: " << rooms[i].seatCount << endl;
+			cout << "Precio por Butaca: " << rooms[i].price << endl;
+			cout << "--------------------------\n";
+		}
+	} else {
+		cout << "No hay salas registradas.\n";
+	}
+}
+
+// Room management menu
+void manageRooms() {
+	int option;
+	
+	do {
+		cout << "\n--- Mantenimiento de Salas ---\n";
+		cout << "1. Agregar Sala\n";
+		cout << "2. Mostrar Salas\n";
+		cout << "3. Regresar al Menú Principal\n";
+		cout << "Seleccione una opción: ";
+		cin >> option;
+		
+		switch(option) {
+		case 1: addRoom(); break;
+		case 2: displayRooms(); break;
+		case 3: return;
+		default: cout << "Opcion no valida. Intente de nuevo." << endl;
+		}
+	} while(option != 3);
+}
+
+// Add a new schedule to the system
+void addSchedule() {
+	if(scheduleCount < MAX_SCHEDULES) {
+		cout << "\n--- Agregar Horario ---\n";
+		cout << "Ingrese la fecha (dd/mm/aaaa): ";
+		cin.ignore();
+		getline(cin, schedules[scheduleCount].date);
+		
+		cout << "Ingrese la hora inicial (hh:mm): ";
+		getline(cin, schedules[scheduleCount].startTime);
+		
+		cout << "Ingrese la hora final (hh:mm): ";
+		getline(cin, schedules[scheduleCount].endTime);
+		
+		scheduleCount++;
+		cout << "¡Horario agregado exitosamente!\n";
+	} else {
+		cout << "No se pueden agregar mas horarios, se ha alcanzado el limite.\n";
+	}
+}
+
+// Display all schedules
+void displaySchedules() {
+	if(scheduleCount > 0) {
+		cout << "\n--- Lista de Horarios ---\n";
+		for(int i = 0; i < scheduleCount; i++) {
+			cout << "Horario " << (i + 1) << ":\n";
+			cout << "Fecha: " << schedules[i].date << endl;
+			cout << "Hora Inicial: " << schedules[i].startTime << endl;
+			cout << "Hora Final: " << schedules[i].endTime << endl;
+			cout << "--------------------------\n";
+		}
+	} else {
+		cout << "No hay horarios registrados.\n";
+	}
+}
+
+// Schedule management menu
+void manageSchedules() {
+	int option;
+	
+	do {
+		cout << "\n--- Mantenimiento de Horarios ---\n";
+		cout << "1. Agregar Horario\n";
+		cout << "2. Mostrar Horarios\n";
+		cout << "3. Regresar al Menu Principal\n";
+		cout << "Seleccione una opcion: ";
+		cin >> option;
+		
+		switch(option) {
+		case 1: addSchedule(); break;
+		case 2: displaySchedules(); break;
+		case 3: return;
+		default: cout << "Opcion no valida. Intente de nuevo." << endl;
+		}
+	} while(option != 3);
+}
+
+// Initialize seat matrix for all rooms
+void initializeSeats() {
+	for (int i = 0; i < MAX_ROOMS; i++) {
+		for (int j = 0; j < MAX_SEATS; j++) {
+			seats[i][j] = false;  // Inicialmente todas las butacas están disponibles
+		}
+	}
+}
+
+// Display the seats for a specific room
+void displaySeats(int room) {
+	cout << "\nButacas de la sala " << (room + 1) << ":\n";
+	for (int i = 0; i < rooms[room].seatCount; i++) {
+		cout << "Butaca " << (i + 1) << ": " << (seats[room][i] ? "Reservada" : "Disponible") << endl;
+	}
+}
+
+// Reserve a specific seat in a room
+bool reserveSpecificSeat(int room, int seat) {
+	if (!seats[room][seat]) {
+		seats[room][seat] = true;  // Reservar la butaca
+		return true;
+	} else {
+		return false;  // La butaca ya está ocupada
+	}
+}
+
+// Reserve a seat in the system
+void reserveSeat() {
+	if (movieCount == 0 || roomCount == 0 || scheduleCount == 0) {
+		cout << "Debe haber al menos una pelicula, una sala y un horario registrados antes de realizar una reserva.\n";
+		return;
+	}
+	
+	int selectedMovie, selectedRoom, selectedSchedule;
+	
+	// Select a movie
+	displayMovies();
+	cout << "Seleccione una pelicula (1-" << movieCount << "): ";
+	cin >> selectedMovie;
+	selectedMovie--;  // Adjust for array index
+	
+	// Select a room
+	displayRooms();
+	cout << "Seleccione una sala (1-" << roomCount << "): ";
+	cin >> selectedRoom;
+	selectedRoom--;  // Adjust for array index
+	
+	// Select a schedule
+	displaySchedules();
+	cout << "Seleccione un horario (1-" << scheduleCount << "): ";
+	cin >> selectedSchedule;
+	selectedSchedule--;  // Adjust for array index
+	
+	// Initialize seat matrix
+	initializeSeats();
+	
+	int selectedSeat;
+	displaySeats(selectedRoom);
+	
+	cout << "Seleccione una butaca (1-" << rooms[selectedRoom].seatCount << "): ";
+	cin >> selectedSeat;
+	selectedSeat--;  // Adjust for array index
+	
+	if (reserveSpecificSeat(selectedRoom, selectedSeat)) {
+		cout << "¡Butaca reservada exitosamente!\n";
+	} else {
+		cout << "La butaca seleccionada ya está ocupada. Intente con otra.\n";
+	}
+}
+
+// Sell a ticket for a reserved seat
+void sellTicket() {
+	if (movieCount == 0 || roomCount == 0 || scheduleCount == 0) {
+		cout << "Debe haber al menos una pelicula, una sala y un horario registrados antes de vender un tiquete.\n";
+		return;
+	}
+	
+	int selectedRoom, selectedSeat;
+	
+	// Select a room
+	displayRooms();
+	cout << "Seleccione la sala para la venta del tiquete (1-" << roomCount << "): ";
+	cin >> selectedRoom;
+	selectedRoom--;  // Adjust for array index
+	
+	// Display and select a seat
+	displaySeats(selectedRoom);
+	cout << "Ingrese el numero de la butaca reservada para vender (1-" << rooms[selectedRoom].seatCount << "): ";
+	cin >> selectedSeat;
+	selectedSeat--;  // Adjust for array index
+	
+	if (seats[selectedRoom][selectedSeat]) {
+		cout << "Butaca confirmada para la venta.\n";
+		cout << "Ingrese la cedula del cliente: ";
+		cin.ignore();  // Clear the input buffer
+		getline(cin, customer.id);
+		
+		cout << "Ingrese el numero de tarjeta del cliente: ";
+		getline(cin, customer.creditCard);
+		
+		cout << "¡Venta realizada con exito!\n";
+		seats[selectedRoom][selectedSeat] = false;  // Liberar la butaca
+	} else {
+		cout << "La butaca seleccionada esta reservada o ya ha sido vendida.\n";
+	}
+}
+void clear(){
+	system("cls");
+}
+	
+
+int main() {
+	int option;
+	
+	do {
+	
+		
+		showMenu();
+		cout << "Seleccione una opcion: ";
+		cin >> option;
+		
+		switch(option) {
+		case 1: showAbout(); break;
+		case 2: manageMovies(); break;
+		case 3: manageRooms(); break;
+		case 4: manageSchedules(); break;
+		case 5: reserveSeat(); break;
+		case 6: sellTicket(); break;
+		case 7: exitSystem(); break;
+		default: cout << "Opcion no valida. Intente de nuevo." << endl;
+		}
+		
+	} while(option != 7);
+	
+	return 0;
+}
